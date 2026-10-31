@@ -1,0 +1,22 @@
+import {Config} from "ngx-fusio-sdk";
+
+export class ConfigBuilder {
+
+  public static build(): Config {
+    let baseUrl = FUSIO_URL;
+    if (!baseUrl) {
+      throw new Error('No base url configured, please provide a variable "FUSIO_URL" containing the Fusio base url');
+    }
+
+    let appKey = FUSIO_APP_KEY;
+
+    return {
+      baseUrl: baseUrl,
+      logo: './assets/fusio_64px.png',
+      appKey: appKey && appKey !== '${APP_KEY}' ? appKey : undefined,
+      homePath: '',
+      helpUrl: 'https://docs.fusio-project.org/docs/form/',
+    }
+  }
+
+}

@@ -1,0 +1,25 @@
+
+<fusio-message [response]="response()"></fusio-message>
+
+@if (loading()) {
+  <div class="spinner-border" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+}
+@else if (forms().length === 0) {
+  <div class="alert alert-info" role="alert">
+    No public form was configured.
+  </div>
+} @else {
+  @for (form of forms(); track form.id) {
+    <div class="card float-start" style="width:32rem;margin-right:1rem;margin-bottom:1rem">
+      <h5 class="card-header">{{form.name}}</h5>
+      <div class="card-body">
+        <div class="btn-group w-100" role="group">
+          <a [routerLink]="['/', 'form', form.id]" class="btn btn-primary">Form</a>
+        </div>
+      </div>
+    </div>
+  }
+  <div style="clear:both"></div>
+}
