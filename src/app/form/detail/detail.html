@@ -1,20 +1,33 @@
 
-<h1>{{form()?.name}}</h1>
-
 @if (!loading()) {
   @if (schema(); as schema) {
-    <jsonforms
-      [data]="initialData"
-      [schema]="schema"
-      [uischema]="uiSchema()!"
-      [renderers]="renderers"
-      (dataChange)="onDataChange($event)">
-    </jsonforms>
-    <fusio-form-button type="primary" [loading]="submitting()" title="Submit" titleLoading="Submitting ..." (onAction)="submitForm()"></fusio-form-button>
+    <div class="card">
+      <div class="card-header">
+        {{ form()?.name }}
+      </div>
+      <div class="card-body">
+        <jsonforms
+          [data]="initialData"
+          [schema]="schema"
+          [uischema]="uiSchema()!"
+          [renderers]="renderers"
+          (dataChange)="onDataChange($event)">
+        </jsonforms>
+      </div>
+      <div class="card-footer">
+        <fusio-form-button type="primary" [loading]="submitting()" title="Submit" titleLoading="Submitting ..." (onAction)="submitForm()"></fusio-form-button>
+      </div>
+    </div>
   }
   @if (response(); as resp) {
-    <hr>
-    <pre>{{ resp|json }}</pre>
+    <div class="card mt-3" [ngClass]="{'border-success': isSuccessful(), 'border-warning': isClientError(), 'border-danger': isServerError()}">
+      <div class="card-header" [ngClass]="{'text-bg-success': isSuccessful(), 'text-bg-warning': isClientError(), 'text-bg-danger': isServerError()}">
+        Response {{statusCode()}}
+      </div>
+      <div class="card-body">
+        <pre>{{ resp|json }}</pre>
+      </div>
+    </div>
   }
 }
 @else {

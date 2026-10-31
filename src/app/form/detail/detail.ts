@@ -3,7 +3,7 @@ import {ErrorService, FormButtonComponent, FusioService} from "ngx-fusio-sdk";
 import {ConsumerForm} from "fusio-sdk";
 import {ActivatedRoute} from "@angular/router";
 import {JsonFormsModule} from "@jsonforms/angular";
-import {JsonPipe} from "@angular/common";
+import {JsonPipe, NgClass} from "@angular/common";
 import {JsonSchema, UISchemaElement} from "@jsonforms/core";
 import {bootstrapRenderers} from "../renderer";
 import {HttpClient} from "@angular/common/http";
@@ -14,6 +14,7 @@ import {HttpClient} from "@angular/common/http";
     JsonFormsModule,
     JsonPipe,
     FormButtonComponent,
+    NgClass,
   ],
   templateUrl: './detail.html',
   styleUrl: './detail.css',
@@ -22,8 +23,24 @@ export class Detail implements OnInit {
 
   form = signal<ConsumerForm|undefined>(undefined);
   response = signal<any>(undefined);
+  statusCode = signal<number|undefined>(undefined);
   loading = signal<boolean>(false);
   submitting = signal<boolean>(false);
+
+  isSuccessful = computed<boolean>(() => {
+    const statusCode = this.statusCode();
+    return statusCode !== undefined && statusCode >= 200 && statusCode < 300;
+  });
+
+  isClientError = computed<boolean>(() => {
+    const statusCode = this.statusCode();
+    return statusCode !== undefined && statusCode >= 400 && statusCode < 500;
+  });
+
+  isServerError = computed<boolean>(() => {
+    const statusCode = this.statusCode();
+    return statusCode !== undefined && statusCode >= 500 && statusCode < 600;
+  });
 
   renderers = bootstrapRenderers;
 
@@ -79,9 +96,6 @@ export class Detail implements OnInit {
       return;
     }
 
-    const data = this.data();
-    console.log(data);
-
     const httpMethod = form.method;
     const url = form.action;
     if (!httpMethod || !url) {
@@ -102,12 +116,14 @@ export class Detail implements OnInit {
       body: this.data(),
     };
 
-    this.httpClient.request<any>(httpMethod, url, options).subscribe({
-      next: (data) => {
-        this.response.set(data);
+    this.httpClient.request<any>(httpMethod, url, { ...options, observe: 'response' }).subscribe({
+      next: (res) => {
+        this.statusCode.set(res.status);
+        this.response.set(res.body);
         this.submitting.set(false);
       },
       error: (err) => {
+        this.statusCode.set(err.status);
         this.response.set(err.error);
         this.submitting.set(false);
       },
