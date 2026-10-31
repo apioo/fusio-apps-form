@@ -10,10 +10,12 @@
       [renderers]="renderers"
       (dataChange)="onDataChange($event)">
     </jsonforms>
+    <fusio-form-button type="primary" [loading]="submitting()" title="Submit" titleLoading="Submitting ..." (onAction)="submitForm()"></fusio-form-button>
   }
-
-  <pre>{{ data()|json }}</pre>
-
+  @if (response(); as resp) {
+    <hr>
+    <pre>{{ resp|json }}</pre>
+  }
 }
 @else {
   <div class="spinner-border" role="status">
